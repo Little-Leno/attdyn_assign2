@@ -1,5 +1,5 @@
 classdef complAHRS< handle
-    %DCM AHRS algorithm        %from natalie
+    %DCM AHRS algorithm        %natalie
     %% direction cosine matrix
     %% Public properties
     properties (Access = public)
@@ -44,7 +44,7 @@ classdef complAHRS< handle
             dcm_new = dcm + (OM*dcm*obj.SamplePeriod);
             
             %Update rotation matrix
-            dcm = dcm_new;        %to natalie
+            dcm = dcm_new;
             
             
            
@@ -122,7 +122,7 @@ classdef complAHRS< handle
             %% Update rotation matrix (DCM)
             FILL IN HERE
             %%Normalize
-            %FILL IN HERE                    %from natalie
+            %FILL IN HERE                    %natalie
             u = dcm(1,:);
             v = dcm(2,:);
             w = dcm(3,:);
@@ -144,7 +144,7 @@ classdef complAHRS< handle
             v_n = v_p/norm(v_p);
             w_n = w_p/norm(w_p);
             
-            dcm = [u_n; v_n; w_n];        %to natalie
+            dcm = [u_n; v_n; w_n];
      
         end
         
