@@ -51,9 +51,9 @@ classdef complAHRS< handle
             %% Drift correction
             
             %*****Roll and Pitch***** FILL IN HERE
-            eRollPitch=
-            eP=
-            eI=
+            eRollPitch = cross(yaw,obj.GRAVITY); 
+            eP =
+            eI =
             
             %*****Yaw***************
             % Gyro yaw drift correction from compass magnetic heading
@@ -64,7 +64,8 @@ classdef complAHRS< handle
             % Magnetic Heading
             magHeading= atan2(-mY,mX);
             %Calculating Yaw error
-            FILL IN HERE
+            eYGround = (roll*mY)-(pitch*mX);
+            eYaw = eYGround*yaw;
             
             %% PI controller
             obj.eProp=obj.Kp_Yaw*eYaw+eP;
