@@ -53,30 +53,29 @@ title('Magnetometer');
 linkaxes(axis, 'x');
 
 %% Process sensor data through algorithm
-AHRS = dcmAHRS('SamplePeriod', 1/256);
-dcm_mat = zeros(length(time), 3);
-for t = 1:length(time)
-    AHRS.Update(Gyroscope(t,:) * (pi/180));	% gyroscope units must be radians
-    dcm_mat = AHRS.DCM;
-    e=rotMat2euler(dcm_mat) * (180/pi);
-    euler(t,:)=e;
-end
-
-AHRS = QuatAHRS('SamplePeriod', 1/256);
+AHRSquat = QuatAHRS('SamplePeriod', 1/256);
 quaternion = zeros(length(time), 4);
 for t = 1:length(time)
-    AHRS.Update(Gyroscope(t,:) * (pi/180));	% gyroscope units must be radians
-    quaternion(t, :) = AHRS.Quaternion;
-    e=quatern2euler(quaternConj(quaternion(t, :))) * (180/pi);
-    euler(t,:)=e;
+    AHRSquat.Update(Gyroscope(t,:) * (pi/180));	% gyroscope units must be radians
+    quaternion(t, :) = AHRSquat.Quaternion;
+    eQ=quatern2euler(quaternConj(quaternion(t, :))) * (180/pi);
+    eulerQ(t,:)=eQ;
 end
 
-
+%% using direct cosine matrix/Euler
+AHRSdcm = dcmAHRS('SamplePeriod', 1/256);
+dcm_mat = zeros(length(time), 3);
+for t = 1:length(time)
+    AHRSdcm.Update(Gyroscope(t,:) * (pi/180));	% gyroscope units must be radians
+    dcm_mat = AHRSdcm.DCM;
+    edcm=rotMat2euler(dcm_mat) * (180/pi);
+    eulerdcm(t,:)=edcm;
+end
 
 %% Plot algorithm output as Euler angles
 
 figure
-subplot(2,1,1)
+subplot(3,1,1)
  
 hold on;
 plot(time, Gyroscope(:,1), 'r');
@@ -87,33 +86,46 @@ xlabel('Time (s)');
 ylabel('Angular rate (deg/s)');
 title('Gyroscope');
 
-subplot(2,1,2)
+subplot(3,1,2)
  
 hold on;
-plot(time, euler(:,1), 'r');
-plot(time, euler(:,2), 'g');
-plot(time, euler(:,3), 'b');
-plot(time, dcm_mat(:,1), 'k--');
-plot(time, dcm_mat(:,2), 'r--');
-plot(time, dcm_mat(:,3), 'g--');
-plot(time, dcm_mat(:,4), 'b--');
-plot(time,dcm_mat(:,2).^2+dcm_mat(:,3).^2+dcm_mat(:,4).^2+dcm_mat(:,1).^2,'k-.');
-title('Euler angles and quaternions');
+plot(time, eulerdcm(:,1), 'r');
+plot(time, eulerdcm(:,2), 'g');
+plot(time, eulerdcm(:,3), 'b');
+title('Euler angles');
+xlabel('Time (s)');
+ylabel('Angle (deg)');
+legend('\phi', '\theta', '\psi');
+hold off;
+
+subplot(3,1,3)
+hold on;
+plot(time, quaternion(:,1), 'k');
+plot(time, quaternion(:,2), 'r');
+plot(time, quaternion(:,3), 'g');
+plot(time, quaternion(:,4), 'b');
+plot(time,quaternion(:,2).^2+quaternion(:,3).^2+quaternion(:,4).^2+quaternion(:,1).^2,'k--');
+title('Quaternions');
+xlabel('Time (s)');
+legend('q4', 'q1', 'q2', 'q3', '|\bf{q}|');
+hold off;
+
+figure
+hold on;
+yyaxis left
+plot(time, eulerdcm(:,1), 'r-');
+plot(time, eulerdcm(:,2), 'g-');
+plot(time, eulerdcm(:,3), 'b-');
+yyaxis right
+plot(time, quaternion(:,1), 'k--');
+plot(time, quaternion(:,2), 'r--');
+plot(time, quaternion(:,3), 'g--');
+plot(time, quaternion(:,4), 'b--');
+plot(time,quaternion(:,2).^2+quaternion(:,3).^2+quaternion(:,4).^2+quaternion(:,1).^2,'k-.');
+title('Euler angles and Quaternions');
 xlabel('Time (s)');
 ylabel('Angle (deg)');
 legend('\phi', '\theta', '\psi', 'q4', 'q1', 'q2', 'q3', '|\bf{q}|');
 hold off;
-
-% subplot(3,1,3)
-% hold on;
-% plot(time, dcm_mat(:,1), 'k');
-% plot(time, dcm_mat(:,2), 'r');
-% plot(time, dcm_mat(:,3), 'g');
-% plot(time, dcm_mat(:,4), 'b');
-% plot(time,dcm_mat(:,2).^2+dcm_mat(:,3).^2+dcm_mat(:,4).^2+dcm_mat(:,1).^2,'k--');
-% title('Quaternions');
-% xlabel('Time (s)');
-% legend('q4', 'q1', 'q2', 'q3', '|\bf{q}|');
-% hold off;
 
 %% End of script

@@ -62,15 +62,17 @@ for t = 1:length(time)
     euler(t,:)=e;
 end
 
-AHRS = QuatAHRS('SamplePeriod', 1/256);
+AHRS = MahonyAHRS('SamplePeriod', 1/256, 'Kp', 0.1, 'Ki',0.1);
 quaternion = zeros(length(time), 4);
+west=zeros(length(time),3);
 for t = 1:length(time)
-    AHRS.Update(Gyroscope(t,:) * (pi/180));	% gyroscope units must be radians
+    AHRS.Update(Gyroscope(t,:) * (pi/180), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     quaternion(t, :) = AHRS.Quaternion;
+    % euler(t,:) = quatern2euler(quaternConj(quaternion(t, :))) * (180/pi);
     e=quatern2euler(quaternConj(quaternion(t, :))) * (180/pi);
     euler(t,:)=e;
+    west(t,:)=AHRS.Gyroest;
 end
-
 
 
 %% Plot algorithm output as Euler angles
@@ -93,15 +95,10 @@ hold on;
 plot(time, euler(:,1), 'r');
 plot(time, euler(:,2), 'g');
 plot(time, euler(:,3), 'b');
-plot(time, dcm_mat(:,1), 'k--');
-plot(time, dcm_mat(:,2), 'r--');
-plot(time, dcm_mat(:,3), 'g--');
-plot(time, dcm_mat(:,4), 'b--');
-plot(time,dcm_mat(:,2).^2+dcm_mat(:,3).^2+dcm_mat(:,4).^2+dcm_mat(:,1).^2,'k-.');
-title('Euler angles and quaternions');
+title('Euler angles');
 xlabel('Time (s)');
 ylabel('Angle (deg)');
-legend('\phi', '\theta', '\psi', 'q4', 'q1', 'q2', 'q3', '|\bf{q}|');
+legend('\phi', '\theta', '\psi');
 hold off;
 
 % subplot(3,1,3)
