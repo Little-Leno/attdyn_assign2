@@ -56,36 +56,38 @@ load('ExampleBias.mat');
 % hold off;
 % linkaxes(axis, 'x');
 
-%% Process sensor data through algorithm
+%% Mahony
 
-
-% AHRS = complAHRS('Kp_RP', 0.1, 'Ki_RP', 0.1, 'Kp_Yaw', 0.1*0.1, 'Ki_Yaw', 0.0001*256*0.1);
-% dcm = zeros(3,3,length(time));
-% euler = zeros(length(time),3);
-% west = zeros(length(time), 3); 
+% AHRS = MahonyAHRS('SamplePeriod', 1/256, 'Kp', 2.3, 'Ki', 0.0001);
+% quaternion = zeros(length(time), 4);
+% west=zeros(length(time),3);
 % for t = 1:length(time)
-%     AHRS.Update(Gyroscope(t,:) * (pi/180),  Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
-%     dcm(:,:, t) = AHRS.DCM;
-%     e = rotMat2euler(dcm(:, :, t))*(180/pi);
+%     AHRS.Update(Gyroscope(t,:) * (pi/180), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+%     quaternion(t, :) = AHRS.Quaternion;
+%     %euler(t,:) = quatern2euler(quaternConj(quaternion(t, :))) * (180/pi);
+%     e=quatern2euler(quaternConj(quaternion(t, :))) * (180/pi);
 %     euler(t,:)=e;
 %     west(t,:)=AHRS.Gyroest;
-%end
+% end
 
-AHRS = complAHRS('SamplePeriod', 1/256, 'Kp', 0, 'Ki',0, 'Kp_Y', 0, 'Ki_Y',0);
+%% Complementary filter
+
+AHRS = complAHRS('Kp_RP', 0.15*10, 'Ki_RP', 0.000019*256*10, 'Kp_Yaw', 0.1*10, 'Ki_Yaw', 0.0001*256*10);
+dcm = zeros(3,3,length(time));
 euler = zeros(length(time),3);
-west = zeros(length(time),3);
-dcm_mat = zeros(3,3,length(time));
+west = zeros(length(time), 3); 
 for t = 1:length(time)
-    AHRS.Update(Gyroscope(t,:) * (pi/180), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
-    dcm_mat(:,:,t) = AHRS.DCM;
-    e=rotMat2euler(dcm_mat(:,:,t)) * (180/pi);
+    AHRS.Update(Gyroscope(t,:) * (pi/180),  Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+    dcm(:,:, t) = AHRS.DCM;
+    e = rotMat2euler(dcm(:, :, t))*(180/pi);
     euler(t,:)=e;
-    west(t,:) = AHRS.Gyroest;
+    west(t,:)=AHRS.Gyroest;
 end
 
 %% Plot algorithm output as Euler angles
+
 figure
-subplot(3,1,1)
+subplot(3,1,1) % Plot without quaternions requires 2,1,1 or 3,1,1 respectively
  
 hold on;
 plot(time, Gyroscope(:,1), 'r');
@@ -102,7 +104,7 @@ plot(time, west(:,2), 'g:');
 plot(time, west(:,3), 'b:');
 legend('w_x', 'w_y', 'w_z','w^{est}_x', 'w^{est}_y', 'w^{est}_z');
 
-subplot(3,1,2)
+subplot(3,1,2)  % Plot without quaternions requires 2,1,2 or 3,1,2 respectively
  
 hold on;
 plot(time, euler(:,1), 'r');
@@ -115,16 +117,16 @@ ylabel('Angle (deg)');
 legend('\phi', '\theta', '\psi');
 hold off;
 
-% subplot(3,1,3)
-% hold on;
-% plot(time, quaternion(:,1), 'k');
-% plot(time, quaternion(:,2), 'r');
-% plot(time, quaternion(:,3), 'g');
-% plot(time, quaternion(:,4), 'b');
-% plot(time,quaternion(:,2).^2+quaternion(:,3).^2+quaternion(:,4).^2+quaternion(:,1).^2,'k--');
-% title('Quaternions');
-% xlabel('Time (s)');
-% legend('q4', 'q1', 'q2', 'q3', '|\bf{q}|');
-% hold off;
+subplot(3,1,3)  % Plot with quaternions requires 3,1,3
+hold on;
+plot(time, quaternion(:,1), 'k');
+plot(time, quaternion(:,2), 'r');
+plot(time, quaternion(:,3), 'g');
+plot(time, quaternion(:,4), 'b');
+plot(time,quaternion(:,2).^2+quaternion(:,3).^2+quaternion(:,4).^2+quaternion(:,1).^2,'k--');
+title('Quaternions');
+xlabel('Time (s)');
+legend('q4', 'q1', 'q2', 'q3', '|\bf{q}|');
+hold off;
 
 %% End of script
