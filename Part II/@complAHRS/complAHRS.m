@@ -112,7 +112,7 @@ classdef complAHRS< handle
             %% Drift correction
             
             %*****Roll and Pitch***** FILL IN HERE
-            eRollPitch = cross(yaw,Accelerometer);         %natalie
+            eRollPitch = cross(yaw,Accelerometer);         
             eP_RP = eRollPitch*obj.Kp_RP;           % proportional error for pitchroll
             obj.eI_RP = eRollPitch*obj.SamplePeriod + obj.eI_RP;
             eI_RP = obj.eI_RP*obj.Ki_RP;        %integral error for pitchroll

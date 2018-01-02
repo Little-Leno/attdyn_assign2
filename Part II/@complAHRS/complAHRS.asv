@@ -90,9 +90,11 @@ classdef complAHRS< handle
             
             dcm = [u_n; v_n; w_n];
             
-            %Calculate Euler angles in example1.m file
+           % replace old dcm with updated
             
             obj.DCM = dcm;
+            
+            %get euler angles
             
             obj.Euler = rotMat2euler(dcm) * (180/pi);
                     
@@ -110,7 +112,7 @@ classdef complAHRS< handle
             %% Drift correction
             
             %*****Roll and Pitch***** FILL IN HERE
-            eRollPitch = cross(yaw,Accelerometer);         %natalie
+            eRollPitch = cross(dcm(3,:),Accelerometer);         %natalie
             eP_RP = eRollPitch*obj.Kp_RP;           % proportional error for pitchroll
             obj.eI_RP = eRollPitch*obj.SamplePeriod + obj.eI_RP;
             eI_RP = obj.eI_RP*obj.Ki_RP;        %integral error for pitchroll
@@ -138,8 +140,8 @@ classdef complAHRS< handle
 			%  FILL IN HERE
             %obj.eInt=obj.Ki_Yaw*eYaw*...;           
             
-            eProp_RP = obj.Kp_RP*eRollPitch + eP_RP;
-            eInt_RP = obj.Ki_RP*eRollPitch + eI_RP;            
+            eProp_RP = eP_RP; %obj.Kp_RP*eRollPitch + eP_RP;
+            eInt_RP = eI_RP; %+ obj.Ki_RP*eRollPitch ;            
             
             eProp_Yaw = obj.Kp_Yaw*eYaw + eP_Yaw;
             eInt_Yaw = obj.Ki_Yaw*eYaw + eI_Yaw;           

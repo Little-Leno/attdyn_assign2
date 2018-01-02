@@ -22,7 +22,7 @@ clear;                              % clear all variables
 clc;                                % clear the command terminal
 
 %% Import and plot sensor data
-load('ExampleDatBias.mat');
+load('ExampleBias.mat');
 % figure('Name', 'Sensor Data');
 % axis(1) = subplot(3,1,1);
 % hold on;
