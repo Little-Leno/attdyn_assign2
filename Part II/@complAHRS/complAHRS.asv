@@ -11,6 +11,7 @@ classdef complAHRS< handle
         Kp_Yaw = 0;
         Euler=[0 0 0];
         Gyroest=[0 0 0];
+        eI_RP = 0;
         GRAVITY=1; %For given data sets
     end
     
@@ -92,7 +93,7 @@ classdef complAHRS< handle
             
             obj.DCM = dcm;
             
-            Euler = rotMat2euler(dcm) * (180/pi);
+            obj.Euler = rotMat2euler(dcm) * (180/pi);
                     
           
             end
@@ -109,8 +110,10 @@ classdef complAHRS< handle
             
             %*****Roll and Pitch***** FILL IN HERE
             eRollPitch = cross(yaw,Accelerometer);         %natalie
-            eP = eRollPitch*Kp_RP;
-            eI =
+            eP_RP = eRollPitch*obj.Kp_RP;
+            obj.eI_RP = eRollPitch*obj.SamplePeriod + obj.eI_RP;
+            eI_RP = obj.eI_RP*obj.Ki_RP;
+            
             
             %*****Yaw***************
             % Gyro yaw drift correction from compass magnetic heading
@@ -123,6 +126,9 @@ classdef complAHRS< handle
             %Calculating Yaw error
             eYGround = (roll*mY)-(pitch*mX);  %natalie
             eYaw = eYGround*yaw;        %natalie
+            
+            eP_Y = 
+            eI_Y =
             
             %% PI controller
             obj.eProp=obj.Kp_Yaw*eYaw+eP;
