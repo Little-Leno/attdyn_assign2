@@ -40,41 +40,31 @@ classdef complAHRS< handle
             pitch=obj.Euler(2);
             yaw=obj.Euler(3);%            
             
-            %% Calculate the magnitude of the accelerometer vector
-            Accel_magnitude = norm(Accelerometer)/obj.GRAVITY;
-            % Normalise accelerometer measurement
-            Accelerometer = Accelerometer / norm(Accelerometer)    % normalise magnitude
-            % Normalise magnetometer measurement
-            Magnetometer = Magnetometer / norm(Magnetometer)   % normalise magnitude
+            %% Update rotation matrix (DCM)   
+        function obj = Update(obj, Gyroscope)
+    
             
-            %% Drift correction
+            %FILL IN HERE
+            dcm = obj.DCM; % short name local variable for readability
+              
+            %Read gyro information
             
-            %*****Roll and Pitch***** FILL IN HERE
-            eRollPitch = cross(yaw,obj.GRAVITY);         %natalie
-            eP = eRollPitch*Kp_RP;
-            eI =
+            omega(1)=Gyroscope(1);
+            omega(2)=Gyroscope(2);
+            omega(3)=Gyroscope(3);
             
-            %*****Yaw***************
-            % Gyro yaw drift correction from compass magnetic heading
-            % Tilt compensated Magnetic filed X:
-            mX = Magnetometer(1)*cos(pitch)+Magnetometer(2)*sin(roll)*sin(pitch)+Magnetometer(3)*cos(roll)*sin(pitch);
-            % Tilt compensated Magnetic filed Y:
-            mY= Magnetometer(2)*cos(roll)-Magnetometer(3)*sin(roll);
-            % Magnetic Heading
-            magHeading= atan2(-mY,mX);
-            %Calculating Yaw error
-            eYGround = (roll*mY)-(pitch*mX);  %natalie
-            eYaw = eYGround*yaw;        %natalie
+            %Calculate rotation matrix time derivative A'=A+OMAdt
             
-            %% PI controller
-            obj.eProp=obj.Kp_Yaw*eYaw+eP;
-			  FILL IN HERE
-            obj.eInt=obj.Ki_Yaw*eYaw*...;           
-                    
-            %% Update rotation matrix (DCM)
-            FILL IN HERE
-            %%Normalize
-            %FILL IN HERE                    %from natalie
+            OM = [0 omega(3) -omega(2);...
+                -omega(3) 0 omega(1);...
+                omega(2) -omega(1) 0];
+            
+            dcm_new = dcm + (OM*dcm*obj.SamplePeriod);
+            
+            %Update rotation matrix
+            dcm = dcm_new;
+            
+            %Orthoganalise and Normalise rotation matrix
             u = dcm(1,:);
             v = dcm(2,:);
             w = dcm(3,:);
@@ -96,7 +86,50 @@ classdef complAHRS< handle
             v_n = v_p/norm(v_p);
             w_n = w_p/norm(w_p);
             
-            dcm = [u_n; v_n; w_n];        %to natalie
+            dcm = [u_n; v_n; w_n];
+            
+            %Calculate Euler angles in example1.m file
+            
+            obj.DCM = dcm;
+            
+            obj.Euler = rotMat2euler(dcm) * (180/pi);
+                    
+          
+            end
+     
+            
+            %% Calculate the magnitude of the accelerometer vector
+            Accel_magnitude = norm(Accelerometer)/obj.GRAVITY;
+            % Normalise accelerometer measurement
+            Accelerometer = Accelerometer / norm(Accelerometer)    % normalise magnitude
+            % Normalise magnetometer measurement
+            Magnetometer = Magnetometer / norm(Magnetometer)   % normalise magnitude
+            
+            %% Drift correction
+            
+            %*****Roll and Pitch***** FILL IN HERE
+            eRollPitch = cross(yaw,Accelerometer);         %natalie
+            eP = eRollPitch*Kp_RP;
+            eI =
+            
+            %*****Yaw***************
+            % Gyro yaw drift correction from compass magnetic heading
+            % Tilt compensated Magnetic filed X:
+            mX = Magnetometer(1)*cos(pitch)+Magnetometer(2)*sin(roll)*sin(pitch)+Magnetometer(3)*cos(roll)*sin(pitch);
+            % Tilt compensated Magnetic filed Y:
+            mY= Magnetometer(2)*cos(roll)-Magnetometer(3)*sin(roll);
+            % Magnetic Heading
+            magHeading= atan2(-mY,mX);
+            %Calculating Yaw error
+            eYGround = (roll*mY)-(pitch*mX);  %natalie
+            eYaw = eYGround*yaw;        %natalie
+            
+            %% PI controller
+            obj.eProp=obj.Kp_Yaw*eYaw+eP;
+			  FILL IN HERE
+            obj.eInt=obj.Ki_Yaw*eYaw*...;           
+                    
+        
      
         end
         

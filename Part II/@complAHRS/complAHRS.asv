@@ -1,53 +1,5 @@
 classdef complAHRS< handle
-    %DCM AHRS algorithm        %natalie
-    %% direction cosine matrix
-    %% Public properties
-    properties (Access = public)
-        SamplePeriod = 1/256;
-        DCM = eye(3);     % output DCM describing the inertial frame relative to body frame
-        Euler=[0 0 0];
-    end
-    
-    %% Private properties
-    properties (Access = private)
 
-    end
-    
-    %% Public methods
-    methods (Access = public)
-        function obj = dcmAHRS(varargin)
-            for i = 1:2:nargin
-                if  strcmp(varargin{i}, 'SamplePeriod'), obj.SamplePeriod = varargin{i+1};
-                elseif  strcmp(varargin{i}, 'DCM'), obj.DCM = varargin{i+1};
-                else error('Invalid argument');
-                end
-            end
-        end
-                %% Update rotation matrix (DCM)   
-        function obj = Update(obj, Gyroscope)
-                
-            %FILL IN HERE
-            dcm = obj.DCM; % short name local variable for readability
-              
-            %Read gyro information
-            
-            omega(1)=Gyroscope(1);
-            omega(2)=Gyroscope(2);
-            omega(3)=Gyroscope(3);
-            
-            %Calculate rotation matrix time derivative A'=A+OMAdt
-            
-            OM = [0 omega(3) -omega(2);...
-                -omega(3) 0 omega(1);...
-                omega(2) -omega(1) 0];
-            
-            dcm_new = dcm + (OM*dcm*obj.SamplePeriod);
-            
-            %Update rotation matrix
-            dcm = dcm_new;
-            
-            
-           
       
     %% Public properties
     properties (Access = public)
@@ -88,41 +40,31 @@ classdef complAHRS< handle
             pitch=obj.Euler(2);
             yaw=obj.Euler(3);%            
             
-            %% Calculate the magnitude of the accelerometer vector
-            Accel_magnitude = norm(Accelerometer)/obj.GRAVITY;
-            % Normalise accelerometer measurement
-            Accelerometer = Accelerometer / norm(Accelerometer);    % normalise magnitude
-            % Normalise magnetometer measurement
-            Magnetometer = Magnetometer / norm(Magnetometer);   % normalise magnitude
+            %% Update rotation matrix (DCM)   
+        function obj = Update(obj, Gyroscope)
+    
             
-            %% Drift correction
+            %FILL IN HERE
+            dcm = obj.DCM; % short name local variable for readability
+              
+            %Read gyro information
             
-            %*****Roll and Pitch***** FILL IN HERE
-            eRollPitch = cross(yaw,obj.GRAVITY);         %natalie
-            eP =
-            eI =
+            omega(1)=Gyroscope(1);
+            omega(2)=Gyroscope(2);
+            omega(3)=Gyroscope(3);
             
-            %*****Yaw***************
-            % Gyro yaw drift correction from compass magnetic heading
-            % Tilt compensated Magnetic filed X:
-            mX = Magnetometer(1)*cos(pitch)+Magnetometer(2)*sin(roll)*sin(pitch)+Magnetometer(3)*cos(roll)*sin(pitch);
-            % Tilt compensated Magnetic filed Y:
-            mY= Magnetometer(2)*cos(roll)-Magnetometer(3)*sin(roll);
-            % Magnetic Heading
-            magHeading= atan2(-mY,mX);
-            %Calculating Yaw error
-            eYGround = (roll*mY)-(pitch*mX);  %natalie
-            eYaw = eYGround*yaw;        %natalie
+            %Calculate rotation matrix time derivative A'=A+OMAdt
             
-            %% PI controller
-            obj.eProp=obj.Kp_Yaw*eYaw+eP;
-			  FILL IN HERE
-            obj.eInt=obj.Ki_Yaw*eYaw*...;           
-                    
-            %% Update rotation matrix (DCM)
-            FILL IN HERE
-            %%Normalize
-            %FILL IN HERE                    %natalie
+            OM = [0 omega(3) -omega(2);...
+                -omega(3) 0 omega(1);...
+                omega(2) -omega(1) 0];
+            
+            dcm_new = dcm + (OM*dcm*obj.SamplePeriod);
+            
+            %Update rotation matrix
+            dcm = dcm_new;
+            
+            %Orthoganalise and Normalise rotation matrix
             u = dcm(1,:);
             v = dcm(2,:);
             w = dcm(3,:);
@@ -145,6 +87,49 @@ classdef complAHRS< handle
             w_n = w_p/norm(w_p);
             
             dcm = [u_n; v_n; w_n];
+            
+            %Calculate Euler angles in example1.m file
+            
+            obj.DCM = dcm;
+            
+            Euler = rotMat2euler(dcm) * (180/pi);
+                    
+          
+            end
+     
+            
+            %% Calculate the magnitude of the accelerometer vector
+            Accel_magnitude = norm(Accelerometer)/obj.GRAVITY;
+            % Normalise accelerometer measurement
+            Accelerometer = Accelerometer / norm(Accelerometer)    % normalise magnitude
+            % Normalise magnetometer measurement
+            Magnetometer = Magnetometer / norm(Magnetometer)   % normalise magnitude
+            
+            %% Drift correction
+            
+            %*****Roll and Pitch***** FILL IN HERE
+            eRollPitch = cross(yaw,Accelerometer);         %natalie
+            eP = eRollPitch*Kp_RP;
+            eI =
+            
+            %*****Yaw***************
+            % Gyro yaw drift correction from compass magnetic heading
+            % Tilt compensated Magnetic filed X:
+            mX = Magnetometer(1)*cos(pitch)+Magnetometer(2)*sin(roll)*sin(pitch)+Magnetometer(3)*cos(roll)*sin(pitch);
+            % Tilt compensated Magnetic filed Y:
+            mY= Magnetometer(2)*cos(roll)-Magnetometer(3)*sin(roll);
+            % Magnetic Heading
+            magHeading= atan2(-mY,mX);
+            %Calculating Yaw error
+            eYGround = (roll*mY)-(pitch*mX);  %natalie
+            eYaw = eYGround*yaw;        %natalie
+            
+            %% PI controller
+            obj.eProp=obj.Kp_Yaw*eYaw+eP;
+			  FILL IN HERE
+            obj.eInt=obj.Ki_Yaw*eYaw*...;           
+                    
+        
      
         end
         
