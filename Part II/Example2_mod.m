@@ -71,15 +71,16 @@ load('ExampleBias.mat');
 %     west(t,:)=AHRS.Gyroest;
 %end
 
-AHRS = complAHRS('SamplePeriod', 1/256, 'Kp', 0, 'Ki',0, 'Kp_Y', 0, 'Ki_Y',0);
+%AHRS = complAHRS('Kp', 0.15*10, 'Ki', 0.000019*256*10, 'Kp_Y', 0.1*10, 'Ki_Y', 0.0001*256*10);
+AHRS = complAHRS('Kp', 0, 'Ki',0, 'Kp_Y', 0, 'Ki_Y',0);
 euler = zeros(length(time),3);
 west = zeros(length(time),3);
 dcm_mat = zeros(3,3,length(time));
 for t = 1:length(time)
     AHRS.Update(Gyroscope(t,:) * (pi/180), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     dcm_mat(:,:,t) = AHRS.DCM;
-    e=rotMat2euler(dcm_mat(:,:,t)) * (180/pi);
-    euler(t,:)=e;
+    e = rotMat2euler(dcm_mat(:,:,t)) * (180/pi);
+    euler(t,:) = e;
     west(t,:) = AHRS.Gyroest;
 end
 
