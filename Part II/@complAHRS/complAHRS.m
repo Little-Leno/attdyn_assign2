@@ -43,8 +43,7 @@ classdef complAHRS< handle
             yaw=obj.Euler(3);%            
             
             %% Update rotation matrix (DCM)   
-        function obj = Update(obj, Gyroscope)
-    
+            
             
             %FILL IN HERE
             dcm = obj.DCM; % short name local variable for readability
@@ -96,23 +95,23 @@ classdef complAHRS< handle
             
             %get euler angles
             
-            obj.Euler = rotMat2euler(dcm) * (180/pi);
+            
                     
           
-            end
+            
      
             
             %% Calculate the magnitude of the accelerometer vector
             Accel_magnitude = norm(Accelerometer)/obj.GRAVITY;
             % Normalise accelerometer measurement
-            Accelerometer = Accelerometer / norm(Accelerometer)    % normalise magnitude
+            Accelerometer = Accelerometer / norm(Accelerometer);    % normalise magnitude
             % Normalise magnetometer measurement
-            Magnetometer = Magnetometer / norm(Magnetometer)   % normalise magnitude
+            Magnetometer = Magnetometer / norm(Magnetometer);   % normalise magnitude
             
             %% Drift correction
             
             %*****Roll and Pitch***** FILL IN HERE
-            eRollPitch = cross(yaw,Accelerometer);         
+            eRollPitch = cross(A(3,:),Accelerometer);         
             eP_RP = eRollPitch*obj.Kp_RP;           % proportional error for pitchroll
             obj.eI_RP = eRollPitch*obj.SamplePeriod + obj.eI_RP;
             eI_RP = obj.eI_RP*obj.Ki_RP;        %integral error for pitchroll

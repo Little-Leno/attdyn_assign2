@@ -58,13 +58,29 @@ load('ExampleBias.mat');
 
 %% Process sensor data through algorithm
 
-AHRS = complAHRS('SamplePeriod', 1/256, 'Kp', 0.1, 'Ki',0.1);
+
+% AHRS = complAHRS('Kp_RP', 0.1, 'Ki_RP', 0.1, 'Kp_Yaw', 0.1*0.1, 'Ki_Yaw', 0.0001*256*0.1);
+% dcm = zeros(3,3,length(time));
+% euler = zeros(length(time),3);
+% west = zeros(length(time), 3); 
+% for t = 1:length(time)
+%     AHRS.Update(Gyroscope(t,:) * (pi/180),  Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+%     dcm(:,:, t) = AHRS.DCM;
+%     e = rotMat2euler(dcm(:, :, t))*(180/pi);
+%     euler(t,:)=e;
+%     west(t,:)=AHRS.Gyroest;
+%end
+
+AHRS = complAHRS('SamplePeriod', 1/256, 'Kp', 0.1, 'Ki',0.1, 'Kp_Y', 0.1, 'Ki_Y',0.1);
 euler = zeros(length(time),3);
 west = zeros(length(time),3);
+dcm_mat = zeros(3,3,length(time));
 for t = 1:length(time)
     AHRS.Update(Gyroscope(t,:) * (pi/180), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
-    euler(t,:) = AHRS.Euler;
-    west(t,:) = AHRS.Gyroest
+    dcm_mat(:,:,t) = AHRS.DCM;
+    e=rotMat2euler(dcm_mat(:,:,t)) * (180/pi);
+    euler(t,:)=e;
+    west(t,:) = AHRS.Gyroest;
 end
 
 %% Plot algorithm output as Euler angles
