@@ -90,9 +90,11 @@ classdef complAHRS< handle
             
             dcm = [u_n; v_n; w_n];
             
-            %Calculate Euler angles in example1.m file
+           % replace old dcm with updated
             
             obj.DCM = dcm;
+            
+            %get euler angles
             
             obj.Euler = rotMat2euler(dcm) * (180/pi);
                     
@@ -134,12 +136,24 @@ classdef complAHRS< handle
             
             
             %% PI controller
-            obj.eProp=obj.Kp_Yaw*eYaw+eP;
-			  FILL IN HERE
-            obj.eInt=obj.Ki_Yaw*eYaw*...;           
-                    
-        
+            %obj.eProp=obj.Kp_Yaw*eYaw+eP;
+			%  FILL IN HERE
+            %obj.eInt=obj.Ki_Yaw*eYaw*...;           
+            
+            eProp_RP = eP_RP; %obj.Kp_RP*eRollPitch + eP_RP;
+            eInt_RP = eI_RP; %+ obj.Ki_RP*eRollPitch ;            
+            
+            eProp_Yaw = obj.Kp_Yaw*eYaw + eP_Yaw;
+            eInt_Yaw = obj.Ki_Yaw*eYaw + eI_Yaw;           
+            
+            
+            
+            % Sum of the gyroscope measurement and all errors
+            Gyroscope = Gyroscope + eProp_RP + eInt_RP + eProp_Yaw + eInt_Yaw;
+            obj.Gyroest = Gyroscope;
      
+        
+        
         end
         
         end

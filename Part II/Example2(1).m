@@ -58,18 +58,23 @@ load('ExampleDatBias.mat');
 
 %% Process sensor data through algorithm
 
-AHRS = MahonyAHRS('SamplePeriod', 1/256, 'Kp', 0.1, 'Ki',0.1);
-quaternion = zeros(length(time), 4);
-west=zeros(length(time),3);
+AHRS = complAHRS('SamplePeriod', 1/256, 'Kp', 0.1, 'Ki',0.1);
+e_mat=zeros(length(time),3);
 for t = 1:length(time)
+    AHRS.Update(Gyroscope(t,:) * (pi/180), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
+    AHRS
+    
+    =0.98*(blah + Gyroest * dt) + 0.02*(Euler)
+end
+
+
+
     AHRS.Update(Gyroscope(t,:) * (pi/180), Accelerometer(t,:), Magnetometer(t,:));	% gyroscope units must be radians
     quaternion(t, :) = AHRS.Quaternion;
     % euler(t,:) = quatern2euler(quaternConj(quaternion(t, :))) * (180/pi);
     e=quatern2euler(quaternConj(quaternion(t, :))) * (180/pi);
     euler(t,:)=e;
     west(t,:)=AHRS.Gyroest;
-end
-
 %% Plot algorithm output as Euler angles
 figure
 subplot(3,1,1)
