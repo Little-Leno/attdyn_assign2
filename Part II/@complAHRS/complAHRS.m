@@ -76,7 +76,8 @@ classdef complAHRS< handle
             eP_Yaw = eYaw * obj.Kp_Yaw;           
             
             % Integral error for yaw.
-            eI_Yaw = (obj.eI_Yaw + eYaw * obj.SamplePeriod) * obj.Ki_Yaw; 
+            obj.eI_Yaw = obj.eI_Yaw + eYaw * obj.SamplePeriod;
+            eI_Yaw = obj.eI_Yaw * obj.Ki_Yaw; 
             
             %% PI controller
             eProp_Yaw = obj.Kp_Yaw * eYaw + eP_Yaw;
