@@ -56,7 +56,8 @@ classdef complAHRS< handle
             eP_RP = eRollPitch * obj.Kp_RP;
             
             % Integral error for pitchroll
-            eI_RP = (obj.eI_RP + eRollPitch * obj.SamplePeriod) * obj.Ki_RP;
+            obj.eI_RP = obj.eI_RP + eRollPitch * obj.SamplePeriod;
+            eI_RP = obj.eI_RP * obj.Ki_RP;
             
             % Yaw
             % Gyro yaw drift correction from compass magnetic heading
