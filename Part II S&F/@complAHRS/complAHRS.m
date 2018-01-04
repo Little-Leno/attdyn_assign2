@@ -28,10 +28,10 @@ classdef complAHRS< handle
                     elseif  strcmp(varargin{i}, 'eProp'), obj.eProp = varargin{i+1};
                         elseif  strcmp(varargin{i}, 'eInt'), obj.eInt = varargin{i+1};
                 elseif  strcmp(varargin{i}, 'DCM'), obj.DCM = varargin{i+1};
-                elseif  strcmp(varargin{i}, 'Kp_RP'), obj.Kp_RP = varargin{i+1};
-                elseif  strcmp(varargin{i}, 'Ki_RP'), obj.Ki_RP = varargin{i+1};
-                elseif  strcmp(varargin{i}, 'Kp_Yaw'), obj.Kp_Yaw = varargin{i+1};
-                elseif  strcmp(varargin{i}, 'Ki_Yaw'), obj.Ki_Yaw = varargin{i+1};
+                elseif  strcmp(varargin{i}, 'Kp'), obj.Kp_RP = varargin{i+1};
+                elseif  strcmp(varargin{i}, 'Ki'), obj.Ki_RP = varargin{i+1};
+                elseif  strcmp(varargin{i}, 'Kp_Y'), obj.Kp_Yaw = varargin{i+1};
+                elseif  strcmp(varargin{i}, 'Ki_Y'), obj.Ki_Yaw = varargin{i+1};
                 else error('Invalid argument');
                 end
             end;

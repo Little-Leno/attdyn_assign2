@@ -58,7 +58,7 @@ load('ExampleBias.mat');
 
 %% Process sensor data through algorithm
 
-AHRS = complAHRS('Kp', 0.15 ,'Ki', 0.00019 , 'Kp_Y' ,0.1 , 'Ki_Y' , 0.0001) ; %for parts 2 d,e,f,g
+AHRS = complAHRS('Kp', 0.3 ,'Ki', 0.00019 , 'Kp_Y' ,0.2 , 'Ki_Y' , 0.0001) ;
 euler = zeros(length(time),3);
 west = zeros(length(time),3);
 dcm_mat = zeros(3,3,length(time));
@@ -70,8 +70,7 @@ for t = 1:length(time)
     west(t,:) = AHRS.Gyroest;
 end
 
-% AHRS = MahonyAHRS('SamplePeriod', 1/256, 'Kp', 5, 'Ki', 0); %for parts
-% 2 a,b,c
+% AHRS = MahonyAHRS('SamplePeriod', 1/256, 'Kp', 5, 'Ki', 0);
 % quaternion = zeros(length(time), 4);
 % west=zeros(length(time),3);
 % for t = 1:length(time)
@@ -85,7 +84,7 @@ end
 
 %% Plot algorithm output as Euler angles
 figure
-subplot(3,1,1)
+subplot(2,1,1)
  
 hold on;
 plot(time, Gyroscope(:,1), 'r');
@@ -102,7 +101,7 @@ plot(time, west(:,2), 'g:');
 plot(time, west(:,3), 'b:');
 legend('w_x', 'w_y', 'w_z','w^{est}_x', 'w^{est}_y', 'w^{est}_z');
 
-subplot(3,1,2)
+subplot(2,1,2)
  
 hold on;
 plot(time, euler(:,1), 'r');
@@ -115,7 +114,7 @@ ylabel('Angle (deg)');
 legend('\phi', '\theta', '\psi');
 hold off;
 % 
-% subplot(3,1,3) %for parts 2a,b,c
+% subplot(3,1,3)
 % hold on;
 % plot(time, quaternion(:,1), 'k');
 % plot(time, quaternion(:,2), 'r');
