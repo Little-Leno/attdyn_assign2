@@ -72,7 +72,7 @@ load('ExampleBias.mat');
 %end
 
 %AHRS = complAHRS('Kp', 0.15*10, 'Ki', 0.000019*256*10, 'Kp_Y', 0.1*10, 'Ki_Y', 0.0001*256*10);
-AHRS = complAHRS('Kp', 0, 'Ki',0, 'Kp_Y', 0, 'Ki_Y',0);
+AHRS = complAHRS('Kp', 0.15 ,'Ki', 0.00019 , 'Kp_Y' ,0.1 , 'Ki_Y' , 0.0001) ;
 euler = zeros(length(time),3);
 west = zeros(length(time),3);
 dcm_mat = zeros(3,3,length(time));
